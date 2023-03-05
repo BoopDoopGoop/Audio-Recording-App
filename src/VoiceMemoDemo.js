@@ -16,19 +16,23 @@ function MainScreen() {
     VoiceMemo.stopRecording();
   };
 
-  const playRecording = () => {
+  const playbackRecording = () => {
     setIsPlaying(true);
-    VoiceMemo.playRecording();
+    VoiceMemo.playbackRecording();
   };
 
-  const pauseRecording = () => {
+  const pausePlaybackRecording = () => {
     setIsPlaying(false);
-    VoiceMemo.pauseRecording();
+    VoiceMemo.pausePlaybackRecording();
   };
 
-  const resumeRecording = () => {
+  const resumePlaybackRecording = () => {
     setIsPlaying(true);
-    VoiceMemo.resumeRecording();
+    VoiceMemo.resumePlaybackRecording();
+  };
+
+  const deleteRecording = () => {
+    VoiceMemo.deleteRecording();
   };
 
   const uploadToFirebase = () => {
@@ -42,11 +46,22 @@ function MainScreen() {
       )}
       {isRecording && <Button title="Stop Recording" onPress={stopRecording} />}
       {!isRecording && !isPlaying && (
-        <Button title="Play Recording" onPress={playRecording} />
+        <Button title="Playback Recording" onPress={playbackRecording} />
       )}
-      {isPlaying && <Button title="Pause Recording" onPress={pauseRecording} />}
+      {isPlaying && (
+        <Button
+          title="Pause Playback Recording"
+          onPress={pausePlaybackRecording}
+        />
+      )}
       {!isRecording && !isPlaying && (
-        <Button title="Resume Recording" onPress={resumeRecording} />
+        <Button
+          title="Resume Playback Recording"
+          onPress={resumePlaybackRecording}
+        />
+      )}
+      {!isRecording && !isPlaying && (
+        <Button title="Delete Recording" onPress={deleteRecording} />
       )}
       {!isRecording && !isPlaying && (
         <Button title="Upload to Firebase" onPress={uploadToFirebase} />

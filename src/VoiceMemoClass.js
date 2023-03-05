@@ -4,7 +4,6 @@ import { Audio } from "expo-av";
 class VoiceMemo {
   static recording = null;
   static sound = null;
-  static position = null;
 
   static async startRecording() {
     try {
@@ -40,19 +39,23 @@ class VoiceMemo {
     }
   }
 
-  static async playRecording() {
+  static async playbackRecording() {
     try {
-      console.log("Playing recording...");
-      const { sound } = await this.recording.createNewLoadedSoundAsync();
-      await sound.playAsync();
-      this.sound = sound;
-      console.log("Recording played");
+      if (this.recording != null) {
+        console.log("Playing recording...");
+        const { sound } = await this.recording.createNewLoadedSoundAsync();
+        await sound.playAsync();
+        this.sound = sound;
+        console.log("Recording played");
+      } else {
+        console.log("There is no recording to playback.");
+      }
     } catch (error) {
       console.log(error);
     }
   }
 
-  static async pauseRecording() {
+  static async pausePlaybackRecording() {
     try {
       await this.sound.pauseAsync();
       console.log("Recording paused");
@@ -61,13 +64,19 @@ class VoiceMemo {
     }
   }
 
-  static async resumeRecording() {
+  static async resumePlaybackRecording() {
     try {
-      await this.sound.playFromPositionAsync(this.position);
+      await this.sound.playAsync();
       console.log("Recording resumed");
     } catch (error) {
       console.log(error);
     }
+  }
+
+  static deleteRecording() {
+    this.recording = null;
+    this.sound = null;
+    console.log("Recording deleted");
   }
 
   //     async uploadToFirebase() {
