@@ -45,9 +45,6 @@ class VoiceMemo {
       console.log("Stopping recording...");
       await this.recording.stopAndUnloadAsync();
 
-      const uri = this.recording.getURI();
-      console.log("Stored at:", uri);
-
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
       });
@@ -60,11 +57,11 @@ class VoiceMemo {
   static async playbackRecording() {
     try {
       if (this.recording != null) {
-        console.log("Playing recording...");
+        console.log("Playing back recording...");
         const { sound } = await this.recording.createNewLoadedSoundAsync();
         await sound.playAsync();
         this.sound = sound;
-        console.log("Recording played");
+        console.log("Played back recording");
       } else {
         console.log("There is no recording to playback.");
       }
@@ -75,8 +72,9 @@ class VoiceMemo {
 
   static async pausePlaybackRecording() {
     try {
+      console.log("Pausing playback recording...");
       await this.sound.pauseAsync();
-      console.log("Recording paused");
+      console.log("Playback recording paused");
     } catch (error) {
       console.log(error);
     }
@@ -84,6 +82,7 @@ class VoiceMemo {
 
   static async resumePlaybackRecording() {
     try {
+      console.log("Resuming playback recording...");
       await this.sound.playAsync();
       console.log("Recording resumed");
     } catch (error) {
@@ -99,16 +98,16 @@ class VoiceMemo {
 
   static async uploadToFirebase() {
     try {
+      console.log("Uploading to Firebase...");
       const uri = this.recording.getURI();
-      const formatted_uri = uri.split(":").pop();
+      const fileName = uri.split("/").pop();
 
       const response = await fetch(uri);
       const blob = await response.blob();
 
-      const storageRef = ref(storage, formatted_uri);
-      uploadBytes(storageRef, blob).then((snapshot) => {
-        console.log("Uploaded a blob or file!");
-      });
+      const storageRef = ref(storage, fileName);
+      await uploadBytes(storageRef, blob);
+      console.log("Successfully Uploaded");
     } catch (error) {
       console.log("Unable to upload to Firebase", error);
     }
