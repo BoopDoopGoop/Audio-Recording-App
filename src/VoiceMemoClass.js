@@ -1,5 +1,20 @@
 import { Audio } from "expo-av";
-// import * as firebase from 'firebase';
+import { initializeApp } from "firebase/app";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyArGhoTs8swPs2MFy-pzXZPZcQIrwuv8F8",
+  authDomain: "audio-recording-app-8241b.firebaseapp.com",
+  projectId: "audio-recording-app-8241b",
+  storageBucket: "audio-recording-app-8241b.appspot.com",
+  messagingSenderId: "285243728702",
+  appId: "1:285243728702:web:760e1e853067ca71a3c26f",
+  storageBucket: "gs://audio-recording-app-8241b.appspot.com",
+};
+
+const app = initializeApp(firebaseConfig);
+
+const storage = getStorage(app);
 
 class VoiceMemo {
   static recording = null;
@@ -29,11 +44,14 @@ class VoiceMemo {
     try {
       console.log("Stopping recording...");
       await this.recording.stopAndUnloadAsync();
+
+      const uri = this.recording.getURI();
+      console.log("Stored at:", uri);
+
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
       });
-      const uri = this.recording.getURI();
-      console.log("Recording stopped and stored at", uri);
+      console.log("Recording stopped");
     } catch (error) {
       console.log(error);
     }
@@ -79,18 +97,22 @@ class VoiceMemo {
     console.log("Recording deleted");
   }
 
-  //     async uploadToFirebase() {
-  //       try {
-  //           const { uri } = await this.recording.createNewLoadedSoundAsync();
-  //           const storage = firebase.storage();
-  //           const storageRef = storage.ref();
-  //           const audioRef = storageRef.child('audio/audio.aac');
-  //           const snapshot = await audioRef.putFile(uri);
-  //           console.log('Uploaded audio with metadata:', snapshot.metadata);
-  //       } catch (error) {
-  //           console.log(error);
-  //       }
-  //   }
+  static async uploadToFirebase() {
+    try {
+      const uri = this.recording.getURI();
+      const formatted_uri = uri.split(":").pop();
+
+      const response = await fetch(uri);
+      const blob = await response.blob();
+
+      const storageRef = ref(storage, formatted_uri);
+      uploadBytes(storageRef, blob).then((snapshot) => {
+        console.log("Uploaded a blob or file!");
+      });
+    } catch (error) {
+      console.log("Unable to upload to Firebase", error);
+    }
+  }
 }
 
 export default VoiceMemo;
